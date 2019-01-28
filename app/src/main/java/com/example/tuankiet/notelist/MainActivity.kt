@@ -1,6 +1,7 @@
 package com.example.tuankiet.notelist
 
 import android.content.Intent
+import android.media.browse.MediaBrowser
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity;
@@ -14,10 +15,14 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.util.ArrayList
 import android.support.v7.widget.DividerItemDecoration
+import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
 import com.google.firebase.FirebaseApp
 import com.google.firebase.database.*
 import java.security.AccessController.getContext
+import android.content.DialogInterface
+import android.support.v7.widget.RecyclerView
+import android.widget.Toast
 
 
 class MainActivity : AppCompatActivity() {
@@ -34,22 +39,18 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-
-
         val users = ArrayList<NoteModel>()
         users.add(NoteModel("new content","new title"))
         users.add(NoteModel("content 1","title 1"))
         users.add(NoteModel("content 2","title 2"))
 
-        val list_adapter = NoteAdapter(users)
+        setupRecycleView(users)
 
-        recycleview_list.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
-        recycleview_list.adapter = list_adapter
-        recycleview_list.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+        val swipeController = SwipeController()
+        val itemTouchHelper = ItemTouchHelper(swipeController)
+        itemTouchHelper.attachToRecyclerView(recycleview_list)
 
         initFirebase()
-        createNote("ffee","ghh")
-        readData()
 
         fab.setOnClickListener { view ->
             val intent = Intent(this,AddNoteActivity::class.java)
@@ -92,4 +93,13 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
+
+    fun setupRecycleView(users : ArrayList<NoteModel>){
+        val list_adapter = NoteAdapter(users)
+
+        recycleview_list.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
+        recycleview_list.adapter = list_adapter
+        recycleview_list.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+    }
+
 }
