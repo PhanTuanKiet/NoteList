@@ -1,3 +1,17 @@
 package com.example.tuankiet.notelist
 
-data class NoteModel(@SerializedName("content") val content: String?, @SerializedName("title") val title: String? )
+class NoteModel{
+
+    var content : String? = null
+    var title : String? = null
+
+    constructor() {
+        // Default constructor required for calls to DataSnapshot.getValue(User.class)
+    }
+
+    constructor(content: String?, title: String?) {
+        this.content = content
+        this.title = title
+    }
+
+}

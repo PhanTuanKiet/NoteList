@@ -1,9 +1,8 @@
 package com.example.tuankiet.notelist
 
 import android.content.Intent
-import android.media.browse.MediaBrowser
 import android.os.Bundle
-import android.support.design.widget.Snackbar
+import android.provider.ContactsContract
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
@@ -13,56 +12,62 @@ import android.view.WindowManager
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
-import java.util.ArrayList
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
-import com.google.firebase.FirebaseApp
 import com.google.firebase.database.*
-import java.security.AccessController.getContext
-import android.content.DialogInterface
-import android.support.v7.widget.RecyclerView
-import android.widget.Toast
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.math.log
+import com.google.firebase.database.GenericTypeIndicator
 
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var mDatabase: FirebaseDatabase
-    lateinit var myRef: DatabaseReference
+
+    lateinit var myRef : DatabaseReference
+    val firebaseHelper = FirebaseHelper()
+    var itemCount : Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        val users = ArrayList<NoteModel>()
-        users.add(NoteModel("new content","new title"))
-        users.add(NoteModel("content 1","title 1"))
-        users.add(NoteModel("content 2","title 2"))
-
-        setupRecycleView(users)
+        firebaseHelper.initFirebase()
+        myRef = firebaseHelper.myRef
+        readData()
 
         val swipeController = SwipeController()
         val itemTouchHelper = ItemTouchHelper(swipeController)
         itemTouchHelper.attachToRecyclerView(recycleview_list)
 
-        initFirebase()
-
         fab.setOnClickListener { view ->
-            val intent = Intent(this,AddNoteActivity::class.java)
+            val intent = Intent(this, AddNoteActivity::class.java)
+            intent.putExtra("itemID",(itemCount+1).toString())
             startActivity(intent)
         }
     }
 
-    fun initFirebase(){
+    fun readData(){
+        myRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val notelist = ArrayList<NoteModel?>()
+                for (dataList in dataSnapshot.children) {
+                    var note = dataList.getValue(NoteModel::class.java)
+                    notelist.add(NoteModel(note!!.content, note!!.title))
+                    itemCount = dataSnapshot.childrenCount.toInt()
+                }
+                setupRecycleView(notelist)
+            }
 
-        mDatabase = FirebaseDatabase.getInstance()
-        myRef = mDatabase.getReference("Notes")
-
+            override fun onCancelled(p0: DatabaseError) {
+            }
+        })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -77,27 +82,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun createNote(content : String?,title : String?){
-        val note = NoteModel(content,title)
-        myRef.child("4").setValue(note)
-    }
 
-    fun readData() {
-        myRef.addValueEventListener(object : ValueEventListener {
-
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-
-            }
-
-            override fun onCancelled(p0: DatabaseError) {
-            }
-        })
-    }
-
-    fun setupRecycleView(users : ArrayList<NoteModel>){
+    fun setupRecycleView(users: ArrayList<NoteModel?>) {
         val list_adapter = NoteAdapter(users)
 
-        recycleview_list.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
+        recycleview_list.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recycleview_list.adapter = list_adapter
         recycleview_list.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
     }

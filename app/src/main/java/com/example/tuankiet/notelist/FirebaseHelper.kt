@@ -1,17 +1,24 @@
 package com.example.tuankiet.notelist
 
 import android.util.Log
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 
 class FirebaseHelper {
 
-    val mDatabase = FirebaseDatabase.getInstance()
-    val myRef = mDatabase.getReference("note")
+    lateinit var mDatabase : FirebaseDatabase
+    lateinit var myRef : DatabaseReference
 
-    var noteId = myRef.push().key
+    constructor()
 
+    fun initFirebase() {
+        mDatabase = FirebaseDatabase.getInstance()
+        myRef = mDatabase.getReference("Notes")
+    }
+
+    fun createNote(id : String,content: String?, title: String?) {
+        val note = NoteModel(content, title)
+
+        myRef.child(id).setValue(note)
+    }
 
 }

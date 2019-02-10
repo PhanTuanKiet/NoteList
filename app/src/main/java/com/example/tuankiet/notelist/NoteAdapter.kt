@@ -8,7 +8,7 @@ import kotlinx.android.synthetic.main.item_layout.view.*
 
 
 
-class NoteAdapter(val noteList : ArrayList<NoteModel>) : RecyclerView.Adapter<NoteAdapter.NoteListViewHolder>() {
+class NoteAdapter(val noteList : ArrayList<NoteModel?>) : RecyclerView.Adapter<NoteAdapter.NoteListViewHolder>() {
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): NoteListViewHolder {
         val v = LayoutInflater.from(p0.context).inflate(R.layout.item_layout,p0,false)
         return NoteListViewHolder(v)
@@ -24,8 +24,8 @@ class NoteAdapter(val noteList : ArrayList<NoteModel>) : RecyclerView.Adapter<No
 
     class NoteListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        fun bindItems(note: NoteModel) {
-            itemView.tv_item_title.text = note.title
+        fun bindItems(note: NoteModel?) {
+            itemView.tv_item_title.text = note?.title
         }
 
     }
