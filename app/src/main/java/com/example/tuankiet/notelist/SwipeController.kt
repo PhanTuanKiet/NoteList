@@ -17,13 +17,23 @@ enum class ButtonState {
     RIGHT_VISIBLE
 }
 
-class SwipeController : ItemTouchHelper.Callback() {
+class SwipeController : ItemTouchHelper.Callback {
 
     var swipeBack: Boolean = false
     var buttonState = ButtonState.GONE
-    var buttonInstance : RectF? = null
-    var currentItemViewHolder : RecyclerView.ViewHolder? = null
+    var buttonInstance: RectF? = null
+    var currentItemViewHolder: RecyclerView.ViewHolder? = null
     val buttonWidth: Float = 300f
+    var buttonsActions: SwipeControllerActions? = null
+
+    constructor()
+
+    constructor(buttonsActions: SwipeControllerActions) {
+        this.buttonsActions = buttonsActions
+    }
+
+
+
     override fun getMovementFlags(p0: RecyclerView, p1: RecyclerView.ViewHolder): Int {
         return ItemTouchHelper.Callback.makeMovementFlags(0, LEFT or RIGHT)
     }
@@ -71,7 +81,6 @@ class SwipeController : ItemTouchHelper.Callback() {
         }
         currentItemViewHolder = viewHolder
 
-        drawButtons(c, viewHolder)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -133,10 +142,20 @@ class SwipeController : ItemTouchHelper.Callback() {
         recyclerView.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_UP) {
                 onChildDraw(c, recyclerView, viewHolder, 0F, dY, actionState, isCurrentlyActive)
-                recyclerView.setOnTouchListener { v, event -> false }
+//                recyclerView.setOnTouchListener { v, event -> false }
                 setItemClickable(recyclerView, true)
                 swipeBack = false
             }
+            if (buttonsActions != null && buttonInstance != null && buttonInstance!!.contains(event.getX(), event.getY())) {
+                if (buttonState == ButtonState.LEFT_VISIBLE) {
+                    buttonsActions!!.onLeftClicked();
+                }
+                else if (buttonState == ButtonState.RIGHT_VISIBLE) {
+                    buttonsActions!!.onRightClicked();
+                }
+            }
+            buttonState = ButtonState.GONE;
+            currentItemViewHolder = null;
             false
         }
     }
@@ -184,6 +203,11 @@ class SwipeController : ItemTouchHelper.Callback() {
 
         val textWidth = p.measureText(text)
         c.drawText(text, button.centerX() - textWidth / 2, button.centerY() + textSize / 2, p)
+    }
 
+    fun onDraw(c: Canvas) {
+        if (currentItemViewHolder != null) {
+            drawButtons(c, currentItemViewHolder!!)
+        }
     }
 }

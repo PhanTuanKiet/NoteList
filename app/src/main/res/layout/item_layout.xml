@@ -8,38 +8,6 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/item_background"
-        android:background="#1da971"
-        >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="17sp"
-            android:textStyle="bold"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="15dp"
-            android:text="EDIT"
-            android:textColor="#FFFFFF"
-            />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textSize="17sp"
-            android:textStyle="bold"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="15dp"
-            android:text="DELETE"
-            android:textColor="#FFFFFF"
-            />
-
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:background="@color/bgColor"
         android:id="@+id/item_foreground"
         >

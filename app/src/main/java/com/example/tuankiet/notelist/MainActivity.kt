@@ -1,6 +1,7 @@
 package com.example.tuankiet.notelist
 
 import android.content.Intent
+import android.graphics.Canvas
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.support.v7.app.AppCompatActivity;
@@ -14,12 +15,12 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.helper.ItemTouchHelper
-import android.util.Log
+import android.widget.Toast
 import com.google.firebase.database.*
-import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.math.log
-import com.google.firebase.database.GenericTypeIndicator
+import android.support.v7.widget.RecyclerView
+
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var myRef : DatabaseReference
     val firebaseHelper = FirebaseHelper()
     var itemCount : Int = 0
+    lateinit var swipeController : SwipeController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,16 +44,27 @@ class MainActivity : AppCompatActivity() {
         myRef = firebaseHelper.myRef
         readData()
 
-        val swipeController = SwipeController()
+        val intent = Intent(this, AddNoteActivity::class.java)
+
+        swipeController = SwipeController( object : SwipeControllerActions(){
+            override fun onLeftClicked() {
+                super.onLeftClicked()
+                intent.putExtra("EditMode","Edit")
+                startActivity(intent)
+                Toast.makeText(this@MainActivity,"Left Click",Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        )
         val itemTouchHelper = ItemTouchHelper(swipeController)
         itemTouchHelper.attachToRecyclerView(recycleview_list)
 
         fab.setOnClickListener { view ->
-            val intent = Intent(this, AddNoteActivity::class.java)
             intent.putExtra("itemID",(itemCount+1).toString())
             startActivity(intent)
         }
     }
+
 
     fun readData(){
         myRef.addValueEventListener(object : ValueEventListener {
@@ -60,8 +73,8 @@ class MainActivity : AppCompatActivity() {
                 for (dataList in dataSnapshot.children) {
                     var note = dataList.getValue(NoteModel::class.java)
                     notelist.add(NoteModel(note!!.content, note!!.title))
-                    itemCount = dataSnapshot.childrenCount.toInt()
                 }
+                itemCount = dataSnapshot.childrenCount.toInt()
                 setupRecycleView(notelist)
             }
 
@@ -89,6 +102,11 @@ class MainActivity : AppCompatActivity() {
         recycleview_list.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recycleview_list.adapter = list_adapter
         recycleview_list.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
+        recycleview_list.addItemDecoration(object : RecyclerView.ItemDecoration() {
+            override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+                swipeController.onDraw(c)
+            }
+        })
     }
 
 }

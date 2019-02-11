@@ -17,7 +17,6 @@ class FirebaseHelper {
 
     fun createNote(id : String,content: String?, title: String?) {
         val note = NoteModel(content, title)
-
         myRef.child(id).setValue(note)
     }
 
