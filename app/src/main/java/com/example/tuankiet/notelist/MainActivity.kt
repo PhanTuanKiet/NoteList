@@ -15,12 +15,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.helper.ItemTouchHelper
-import android.widget.Toast
 import com.google.firebase.database.*
 import kotlin.collections.ArrayList
 import android.support.v7.widget.RecyclerView
-
-
 
 
 class MainActivity : AppCompatActivity() {
@@ -29,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var myRef : DatabaseReference
     val firebaseHelper = FirebaseHelper()
     var itemCount : Int = 0
+
     lateinit var swipeController : SwipeController
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,23 +42,8 @@ class MainActivity : AppCompatActivity() {
         myRef = firebaseHelper.myRef
         readData()
 
-        val intent = Intent(this, AddNoteActivity::class.java)
-
-        swipeController = SwipeController( object : SwipeControllerActions(){
-            override fun onLeftClicked() {
-                super.onLeftClicked()
-                intent.putExtra("EditMode","Edit")
-                startActivity(intent)
-                Toast.makeText(this@MainActivity,"Left Click",Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        )
-        val itemTouchHelper = ItemTouchHelper(swipeController)
-        itemTouchHelper.attachToRecyclerView(recycleview_list)
-
         fab.setOnClickListener { view ->
-            intent.putExtra("itemID",(itemCount+1).toString())
+            var intent = AddNoteActivity.getIntentByID((itemCount+1).toString(), null, "Add", this)
             startActivity(intent)
         }
     }
@@ -101,12 +84,27 @@ class MainActivity : AppCompatActivity() {
 
         recycleview_list.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recycleview_list.adapter = list_adapter
-        recycleview_list.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
         recycleview_list.addItemDecoration(object : RecyclerView.ItemDecoration() {
             override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
                 swipeController.onDraw(c)
             }
         })
+
+        swipeController = SwipeController( object : SwipeControllerActions(){
+            override fun onLeftClicked(position : Int) {
+                super.onLeftClicked(position)
+                var selectedNote = list_adapter.getItemByPosition(position)
+                var intent = AddNoteActivity.getIntentByID((position+1).toString(), selectedNote!!.title +","+ selectedNote.content,"Edit", this@MainActivity)
+                startActivity(intent)
+            }
+
+            override fun onRightClicked(position: Int) {
+                super.onRightClicked(position)
+                myRef.child((position+1).toString()).removeValue()
+            }
+        })
+        val itemTouchHelper = ItemTouchHelper(swipeController)
+        itemTouchHelper.attachToRecyclerView(recycleview_list)
     }
 
 }

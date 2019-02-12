@@ -2,11 +2,12 @@ package com.example.tuankiet.notelist
 
 open class SwipeControllerActions {
 
-    open fun onLeftClicked (){
+    open fun onLeftClicked (position : Int){
 
     }
 
-    open fun onRightClicked (){
+    open fun onRightClicked (position : Int){
 
     }
+
 }

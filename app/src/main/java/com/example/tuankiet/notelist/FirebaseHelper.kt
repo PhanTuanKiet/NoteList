@@ -19,5 +19,4 @@ class FirebaseHelper {
         val note = NoteModel(content, title)
         myRef.child(id).setValue(note)
     }
-
 }

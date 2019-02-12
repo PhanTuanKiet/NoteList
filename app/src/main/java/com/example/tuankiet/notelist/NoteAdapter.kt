@@ -18,15 +18,20 @@ class NoteAdapter(val noteList : ArrayList<NoteModel?>) : RecyclerView.Adapter<N
         return noteList.size
     }
 
+    fun getItemByPosition(position: Int): NoteModel? {
+        return noteList[position]
+    }
+
     override fun onBindViewHolder(p0: NoteListViewHolder, p1: Int) {
         return p0.bindItems(noteList[p1])
     }
+
+
 
     class NoteListViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         fun bindItems(note: NoteModel?) {
             itemView.tv_item_title.text = note?.title
         }
-
     }
 }

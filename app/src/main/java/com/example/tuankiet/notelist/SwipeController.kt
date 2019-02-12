@@ -8,8 +8,8 @@ import android.graphics.RectF
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.support.v7.widget.helper.ItemTouchHelper.*
+import android.util.Log
 import android.view.MotionEvent
-import android.view.View
 
 enum class ButtonState {
     GONE,
@@ -148,10 +148,11 @@ class SwipeController : ItemTouchHelper.Callback {
             }
             if (buttonsActions != null && buttonInstance != null && buttonInstance!!.contains(event.getX(), event.getY())) {
                 if (buttonState == ButtonState.LEFT_VISIBLE) {
-                    buttonsActions!!.onLeftClicked();
+                    buttonsActions!!.onLeftClicked(viewHolder.getAdapterPosition())
+                    Log.d("ItemPosition",viewHolder.adapterPosition.toString())
                 }
                 else if (buttonState == ButtonState.RIGHT_VISIBLE) {
-                    buttonsActions!!.onRightClicked();
+                    buttonsActions!!.onRightClicked(viewHolder.getAdapterPosition())
                 }
             }
             buttonState = ButtonState.GONE;
