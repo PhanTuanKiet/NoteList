@@ -22,9 +22,6 @@ class AddNoteActivity : AppCompatActivity() {
             intent.putExtra("Mode", mode)
             return intent
         }
-
-
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

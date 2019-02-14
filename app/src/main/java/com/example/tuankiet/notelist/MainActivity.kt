@@ -18,6 +18,10 @@ import android.support.v7.widget.helper.ItemTouchHelper
 import com.google.firebase.database.*
 import kotlin.collections.ArrayList
 import android.support.v7.widget.RecyclerView
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DataSnapshot
+
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -58,10 +62,25 @@ class MainActivity : AppCompatActivity() {
                     notelist.add(NoteModel(note!!.content, note!!.title))
                 }
                 itemCount = dataSnapshot.childrenCount.toInt()
+                getTheLastNote()
                 setupRecycleView(notelist)
             }
 
             override fun onCancelled(p0: DatabaseError) {
+            }
+        })
+    }
+
+    fun getTheLastNote(){
+        var lastQuery = myRef.orderByKey().limitToLast(1)
+        lastQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val message = dataSnapshot.value!! as HashMap<String,Any>
+                message.keys
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+
             }
         })
     }
